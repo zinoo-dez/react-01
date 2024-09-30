@@ -8,8 +8,9 @@ import Pricing from "./pages/Pricing";
 import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ErrorPage from "./pages/ErrorPage";
+import { jwtDecode } from "jwt-decode";
 
 function App() {
   const [username, setUsername] = useState<string | null>(null);
@@ -19,6 +20,15 @@ function App() {
     setUsername(null);
     setEmail(null);
   };
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decodedToken: any = jwtDecode(token);
+      setUsername(decodedToken.username);
+      setEmail(decodedToken.email);
+    }
+  }, [username, email]);
+
   return (
     <>
       {/* <MyNavbar username={username} logout={handleLogout} /> */}

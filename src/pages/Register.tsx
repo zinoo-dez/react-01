@@ -30,13 +30,10 @@ export default function Register() {
       if (!response.ok) {
         if (response.status === 409) {
           setError("User already exists");
-          // alert("User already exists");
         } else if (response.status === 400) {
           setError("Invalid email or password");
-          // alert("Invalid email or password");
         } else {
           setError("Something went wrong");
-          // alert("Something went wrong");
         }
         throw new Error("HTTP server error!");
       }
@@ -44,6 +41,7 @@ export default function Register() {
       console.log(data);
       navigate("/login");
     } catch (error: any) {
+      // console.log('error', error)
       if (error.message === "Failed to fetch" || error.name === "TypeError") {
         setError("Backend API is not running");
       } else {
@@ -51,14 +49,14 @@ export default function Register() {
       }
       console.log(error.message);
     }
-    const data = new FormData();
-    data.append("username", input.username as string);
-    data.append("email", input.email as string);
-    data.append("password", input.password as string);
+    // const data = new FormData();
+    // data.append("username", input.username as string);
+    // data.append("email", input.email as string);
+    // data.append("password", input.password as string);
 
-    for (const [key, val] of data.entries()) {
-      console.log(`${key} and ${val}`);
-    }
+    // for (const [key, val] of data.entries()) {
+    //   console.log(`${key} and ${val}`);
+    // }
   };
   return (
     <>
@@ -67,7 +65,8 @@ export default function Register() {
           error && (
             <div className="bg-red-500 text-white p-2 rounded-md mb-4">
               {error}
-            </div>)
+            </div>
+          )
         }
         <form
           action=""

@@ -1,9 +1,10 @@
-import { useContext } from "react";
-import { UserContext } from "../context/UserContext";
+
+import { useUser } from "../context/UserContext";
 
 export default function Service() {
-    const hello = useContext(UserContext);
+    const { username } = useUser()
+
     return (
-        <div>Service {hello?.getA} </div>
+        <div>Service {username} </div>
     )
 }

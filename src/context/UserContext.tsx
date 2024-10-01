@@ -1,11 +1,12 @@
 import { jwtDecode } from "jwt-decode";
-import { createContext, useState, ReactNode, useEffect } from "react";
+import { createContext, useState, ReactNode, useEffect, useContext } from "react";
 interface UserContextType {
   username: string;
-  setUsername: (username: string) => void;
   email: string;
-  setEmail: (email: string) => void;
-  getA: string
+  setUser(username: string, email: string): void;
+  logout: () => void;
+  // setUsername: (username: string) => void;
+  // setEmail: (email: string) => void;
 }
 
 export const UserContext = createContext<UserContextType | null>(null);
@@ -14,7 +15,6 @@ export const UserContext = createContext<UserContextType | null>(null);
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
-  const getA = "Hello";
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -23,10 +23,30 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       setUsername(decodedToken.username);
       setEmail(decodedToken.email);
     }
-  }, [username, email]);
+  }, []);
+  const setUser = (username: string, email: string) => {
+    setUsername(username);
+    setEmail(email);
+  };
+  const logout = () => {
+    localStorage.removeItem("token");
+    setUsername("");
+    setEmail("");
+  };
+
+
   return (
-    <UserContext.Provider value={{ username, setUsername, email, setEmail, getA }}>
+    <UserContext.Provider value={{ username, setUser, email, logout }}>
       {children}
     </UserContext.Provider>
   );
+};
+
+
+export const useUser = () => {
+  const context = useContext(UserContext);
+  if (!context) {
+    throw new Error("useUser must be used within a UserProvider");
+  }
+  return context;
 };

@@ -2,18 +2,19 @@
 
 import { Avatar, Dropdown, Navbar } from "flowbite-react";
 import { Link, Outlet } from "react-router-dom";
+import { useUser } from "../context/UserContext";
+import { DropDownComponent } from "./DropDownComponent";
+import { useCategory } from "../context/CategoryContext";
+import { CarouselComponent } from "./CarouselComponent";
 
-type NavbarProps = {
-  username: string | null;
-  email: string | null;
-  logout: () => void;
-};
-export function MyNavbar({ username, email, logout }: NavbarProps) {
+export function MyNavbar() {
+  const { username, email, logout } = useUser();
+  const { categories } = useCategory()
   return (
     <>
 
       <Navbar fluid rounded>
-        <Navbar.Brand href="https://flowbite-react.com">
+        <Navbar.Brand href="#">
           <img
             src="/vite.svg"
             className="mr-3 h-6 sm:h-9"
@@ -71,11 +72,13 @@ export function MyNavbar({ username, email, logout }: NavbarProps) {
         <Navbar.Collapse>
           <Link to="/">Home</Link>
           <Link to="/about">About</Link>
-          <Link to="/service">Services</Link>
+          <Link to="/service">Categories</Link>
           <Link to="/price">Pricing</Link>
           <Link to="/contact">Contact</Link>
+          <DropDownComponent categories={categories} />
         </Navbar.Collapse>
       </Navbar>
+      <CarouselComponent />
       <Outlet />
     </>
   );

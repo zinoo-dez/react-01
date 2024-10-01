@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import { useUser } from "../context/UserContext";
 
-type LoginProps = {
-  setUser: (username: string) => void;
-  setEmail: (email: string) => void;
-};
-export default function Login({ setUser, setEmail }: LoginProps) {
+
+export default function Login() {
   const navigate = useNavigate();
-  // const [loginAttempts, setLoginAttempts] = useState<number>(0);
-  // const maxAttempts = 3;
+  const { setUser } = useUser();
+  const [loginAttempts, setLoginAttempts] = useState<number>(0);
+  const maxAttempts = 3;
   const [error, setError] = useState<string | null>(null);
   const [input, setInput] = useState({
     email: "",
@@ -18,18 +17,21 @@ export default function Login({ setUser, setEmail }: LoginProps) {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setInput({ ...input, [name]: value });
+    setInput((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
-    // if (loginAttempts >= maxAttempts) {
-    //   setError("Too many login attempts. Please try again later.");
-    //   setTimeout(() => {
-    //     navigate("/");
-    //   }, 3000);
-    //   return;
-    // }
+    if (loginAttempts == maxAttempts) {
+      setError("Too many login attempts. Please try again later.");
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
+      return;
+    }
     try {
       const response = await fetch("http://localhost:4400/auth/login", {
         method: "POST",
@@ -48,7 +50,7 @@ export default function Login({ setUser, setEmail }: LoginProps) {
         } else {
           setError(errorData.message || "Failed to log in.");
         }
-        // setLoginAttempts((prev) => prev + 1);
+        setLoginAttempts((prev) => prev + 1);
         return;
       }
       const data = await response.json();
@@ -57,17 +59,18 @@ export default function Login({ setUser, setEmail }: LoginProps) {
       localStorage.setItem("token", token);
       const decodedToken = jwtDecode<{ username: string, email: string }>(token);
       setError(null);
-      setUser(decodedToken.username);
-      setEmail(decodedToken.email);
-      // setLoginAttempts(0);
+      setUser(decodedToken.username, decodedToken.email);
+      setLoginAttempts(0);
       navigate("/");
+      // setUser(decodedToken.username);
+      // setEmail(decodedToken.email);
     } catch (error: any) {
       if (error.message === "Failed to fetch" || error.name === "TypeError") {
         setError("Backend API is not running");
       } else {
         setError(error.message);
       }
-      // setLoginAttempts(loginAttempts + 1);
+      setLoginAttempts(loginAttempts + 1);
       console.log(error.message);
     }
   };
@@ -80,11 +83,11 @@ export default function Login({ setUser, setEmail }: LoginProps) {
               <div className="bg-red-500 text-white p-2 rounded-md mb-4">
                 {error}
               </div>
-              {/* <p className="text-center mt-2">
-                {loginAttempts >= maxAttempts
+              <p className="text-center mt-2">
+                {loginAttempts > maxAttempts
                   ? "Too many attempts. Please try again later."
                   : `Attempt ${loginAttempts} of ${maxAttempts}`}
-              </p> */}
+              </p>
             </>
           )
         }
